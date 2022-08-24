@@ -1365,8 +1365,6 @@ border-radius: 100%;
 }
 .avatar image {
   height: auto;
-  position:relative;
-  width: 100%;
   }
 @keyframes morph {
   0% {
