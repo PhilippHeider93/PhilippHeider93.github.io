@@ -2981,6 +2981,161 @@ border-radius: 100%;
 }
 
 
+/* Image Popup Styles - Compatible with existing site styles */
+.image-popup {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(68, 86, 108, 0.95);
+  z-index: 9999;
+  overflow: hidden;
+}
+
+.popup-content {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  color: #fff;
+}
+
+.popup-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  background-color: rgba(0, 0, 0, 0.2);
+}
+
+.popup-title {
+  margin: 0;
+  font-family: "Archivo", sans-serif;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.popup-close {
+  font-size: 30px;
+  font-weight: bold;
+  cursor: pointer;
+  color: #fff;
+  transition: color 0.3s;
+}
+
+.popup-close:hover {
+  color: #304CFD;
+}
+
+.popup-image-container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+  cursor: grab;
+}
+
+.popup-image-container:active {
+  cursor: grabbing;
+}
+
+#popupImage {
+  max-height: 85%;
+  max-width: 85%;
+  transition: transform 0.2s ease;
+  transform-origin: center center;
+  box-shadow: 0 5px 25px rgba(0, 0, 0, 0.2);
+}
+
+.popup-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 15px;
+  gap: 10px;
+  background-color: rgba(0, 0, 0, 0.2);
+}
+
+.popup-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #304CFD;
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.popup-btn:hover {
+  background-color: #0366d6;
+}
+
+.popup-help {
+  color: rgba(255, 255, 255, 0.7);
+  margin-left: 15px;
+  font-size: 0.9rem;
+}
+
+/* Enhance zoom container to indicate it's clickable */
+.zoom-container {
+  cursor: pointer;
+  position: relative;
+}
+
+/* Add a subtle expand icon to show images are clickable */
+.zoom-container::after {
+  content: '';
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  width: 30px;
+  height: 30px;
+  background-color: rgba(48, 76, 253, 0.9);
+  border-radius: 50%;
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="%23ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"></path><path d="M10 14L21 3"></path><path d="M19 10v11H3V5h11"></path></svg>');
+  background-repeat: no-repeat;
+  background-position: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.zoom-container:hover::after {
+  opacity: 1;
+}
+
+/* Responsive adjustments */
+@media only screen and (max-width: 767px) {
+  .popup-title {
+    font-size: 1rem;
+  }
+  
+  .popup-btn {
+    width: 35px;
+    height: 35px;
+  }
+  
+  .popup-help {
+    display: none;
+  }
+
+  #popupImage {
+    max-height: 80%;
+    max-width: 95%;
+  }
+}
+
 /* Responsive design */
 @media (max-width: 768px) {
     .projects-grid {
@@ -2991,6 +3146,9 @@ border-radius: 100%;
         grid-template-columns: 1fr;
     }
 }
+
+
+
 </style>
 
 /*# sourceMappingURL=style.css.map */

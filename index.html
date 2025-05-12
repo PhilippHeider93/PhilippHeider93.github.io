@@ -287,14 +287,14 @@
 						    <p>Scientist with a background in biotechnology and several years of experience in the pharmaceutical industry, now transitioning into IT and Data Science to follow a long-standing passion for technology and analytical problem-solving. Combines scientific thinking, digital curiosity, and hands-on exposure to data-driven projects. Holds a Certificate in Digital Life Sciences and is eager to deepen technical skills through further academic training, with the goal of contributing to innovative, data-driven solutions across industries.</p>
                              </div><br />
 							 <h2 class="title title--h3">IT Projects</h2>
-							 <p class="section-subtitle">A showcase of my technical skills and problem-solving abilities as I transition from biotechnology to IT and data science. Use the mouse to Zoom/Move. <span data-toggle="popover" data-content="Mouseclick left and hold to move, scroll to zoom.">Click for more infos.</span></p>
+							 <p class="section-subtitle">A showcase of my technical skills and problem-solving abilities as I transition from biotechnology to IT and data science. <span data-toggle="popover" data-content="Mouseclick left and hold to move, scroll to zoom.">Click for more infos.</span></p>
 							 
 							 <div class="projects-grid">
 								 <!-- Project 1: Synably (Zoom and Slide effect) -->
 								 <div class="project-card">
 									 <div class="project-image-container">
 										 <div class="zoom-container">
-											 <img src="assets/img/dkeap casestudy.jpg" alt="Synably CRM" class="zoom-image" data-toggle="popover" data-content="Use Mouse to Scroll/Zoom and Move">
+											 <img src="assets/img/dkeap casestudy.jpg" alt="Synably CRM" class="zoom-image">
 										 </div>
 									 </div>
 									 <div class="project-content">
@@ -319,7 +319,7 @@
 								 <div class="project-card">
 									 <div class="project-image-container">
 										 <div class="zoom-container">
-											 <img src="assets/img/novartis_automatisation.jpg" alt="Novartis Automation" class="zoom-image" data-toggle="popover" data-content="Use Mouse to Scroll/Zoom and Move">
+											 <img src="assets/img/novartis_automatisation.jpg" alt="Novartis Automation" class="zoom-image">
 										 </div>
 									 </div>
 									 <div class="project-content">
@@ -884,6 +884,297 @@ else if (window.attachEvent) {
 		  observer.observe(el);
 		});
 	  </script>
+
+
+
+
+<div id="imagePopup" class="image-popup">
+	<div class="popup-content">
+	  <div class="popup-header">
+		<h4 class="popup-title"></h4>
+		<span class="popup-close">&times;</span>
+	  </div>
+	  <div class="popup-image-container">
+		<img id="popupImage" src="" alt="Enlarged view">
+	  </div>
+	  <div class="popup-controls">
+		<button id="zoomIn" class="popup-btn" title="Zoom In"><i class="font-icon icon-plus"></i></button>
+		<button id="zoomOut" class="popup-btn" title="Zoom Out"><i class="font-icon icon-minus"></i></button>
+		<button id="resetView" class="popup-btn" title="Reset View"><i class="font-icon icon-refresh"></i></button>
+		<div class="popup-help">Click and drag to move • Scroll to zoom</div>
+	  </div>
+	</div>
+  </div>
+
+  <script>
+	// Image Popup functionality
+	document.addEventListener('DOMContentLoaded', function() {
+	  // DOM elements
+	  const popup = document.getElementById('imagePopup');
+	  const popupImage = document.getElementById('popupImage');
+	  const popupTitle = document.querySelector('.popup-title');
+	  const closeBtn = document.querySelector('.popup-close');
+	  const zoomInBtn = document.getElementById('zoomIn');
+	  const zoomOutBtn = document.getElementById('zoomOut');
+	  const resetBtn = document.getElementById('resetView');
+	  const imageContainer = document.querySelector('.popup-image-container');
 	  
+	  // Variables for image manipulation
+	  let scale = 1;
+	  let translateX = 0;
+	  let translateY = 0;
+	  let isDragging = false;
+	  let startX, startY;
+	  let lastTouchDistance = 0;
+	  
+	  // Only apply to the first two project cards
+	  const zoomContainers = document.querySelectorAll('.project-card:nth-child(-n+2) .zoom-container');
+	  
+	  zoomContainers.forEach(container => {
+		const img = container.querySelector('.zoom-image');
+		const projectTitle = container.closest('.project-card').querySelector('.project-title').textContent;
+		
+		// Open modal on click
+		container.addEventListener('click', function(e) {
+		  // Don't trigger if user was dragging the image for zoom
+		  if (e.target.classList.contains('zoom-image') && isDragging) {
+			return;
+		  }
+		  
+		  popup.style.display = 'block';
+		  popupImage.src = img.src;
+		  popupTitle.textContent = projectTitle;
+		  document.body.style.overflow = 'hidden'; // Prevent background scrolling
+		  
+		  // Reset view
+		  resetTransform();
+		});
+	  });
+	  
+	  // Close popup
+	  closeBtn.addEventListener('click', function() {
+		closePopup();
+	  });
+	  
+	  // Close when clicking outside image
+	  popup.addEventListener('click', function(e) {
+		if (e.target === popup || e.target === imageContainer) {
+		  closePopup();
+		}
+	  });
+	  
+	  function closePopup() {
+		popup.style.display = 'none';
+		document.body.style.overflow = ''; // Restore scrolling
+	  }
+	  
+	  // Zoom controls
+	  zoomInBtn.addEventListener('click', function() {
+		scale = Math.min(5, scale + 0.5);
+		applyTransform();
+	  });
+	  
+	  zoomOutBtn.addEventListener('click', function() {
+		scale = Math.max(0.5, scale - 0.5);
+		applyTransform();
+	  });
+	  
+	  resetBtn.addEventListener('click', resetTransform);
+	  
+	  // Mouse wheel zoom
+	  popupImage.addEventListener('wheel', function(e) {
+		e.preventDefault();
+		
+		// Calculate zoom point (relative to image)
+		const rect = popupImage.getBoundingClientRect();
+		const mouseX = e.clientX - rect.left;
+		const mouseY = e.clientY - rect.top;
+		
+		// Get relative position on image
+		const relX = mouseX / popupImage.offsetWidth;
+		const relY = mouseY / popupImage.offsetHeight;
+		
+		// Determine zoom direction and calculate new scale
+		const delta = e.deltaY < 0 ? 0.2 : -0.2;
+		const newScale = Math.max(0.5, Math.min(5, scale + delta));
+		
+		// Adjust translation to keep mouse position fixed during zoom
+		const originalWidth = popupImage.offsetWidth / scale;
+		const originalHeight = popupImage.offsetHeight / scale;
+		
+		if (delta > 0) { // Zooming in
+		  translateX -= (newScale - scale) * originalWidth * (relX - 0.5);
+		  translateY -= (newScale - scale) * originalHeight * (relY - 0.5);
+		} else { // Zooming out
+		  translateX += (scale - newScale) * originalWidth * (relX - 0.5);
+		  translateY += (scale - newScale) * originalHeight * (relY - 0.5);
+		}
+		
+		scale = newScale;
+		applyTransform();
+	  });
+	  
+	  // Mouse drag to pan
+	  popupImage.addEventListener('mousedown', function(e) {
+		isDragging = true;
+		startX = e.clientX - translateX;
+		startY = e.clientY - translateY;
+		popupImage.style.cursor = 'grabbing';
+	  });
+	  
+	  window.addEventListener('mousemove', function(e) {
+		if (!isDragging) return;
+		
+		translateX = e.clientX - startX;
+		translateY = e.clientY - startY;
+		applyTransform();
+	  });
+	  
+	  window.addEventListener('mouseup', function() {
+		if (isDragging) {
+		  isDragging = false;
+		  popupImage.style.cursor = 'grab';
+		}
+	  });
+	  
+	  // Touch controls for mobile
+	  popupImage.addEventListener('touchstart', function(e) {
+		if (e.touches.length === 1) {
+		  // Single touch for panning
+		  isDragging = true;
+		  startX = e.touches[0].clientX - translateX;
+		  startY = e.touches[0].clientY - translateY;
+		} else if (e.touches.length === 2) {
+		  // Two finger touch for pinch zoom
+		  isDragging = false;
+		  lastTouchDistance = Math.hypot(
+			e.touches[0].clientX - e.touches[1].clientX,
+			e.touches[0].clientY - e.touches[1].clientY
+		  );
+		}
+	  });
+	  
+	  popupImage.addEventListener('touchmove', function(e) {
+		e.preventDefault();
+		
+		if (e.touches.length === 1 && isDragging) {
+		  // Pan with single touch
+		  translateX = e.touches[0].clientX - startX;
+		  translateY = e.touches[0].clientY - startY;
+		  applyTransform();
+		} else if (e.touches.length === 2) {
+		  // Pinch zoom with two fingers
+		  const currentDistance = Math.hypot(
+			e.touches[0].clientX - e.touches[1].clientX,
+			e.touches[0].clientY - e.touches[1].clientY
+		  );
+		  
+		  if (lastTouchDistance > 0) {
+			// Calculate how much to zoom based on the change in distance
+			const delta = currentDistance - lastTouchDistance;
+			const newScale = Math.max(0.5, Math.min(5, scale + delta * 0.01));
+			
+			// Get the midpoint between the two touches
+			const midX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+			const midY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+			
+			// Convert midpoint to relative position on image
+			const rect = popupImage.getBoundingClientRect();
+			const relX = (midX - rect.left) / popupImage.offsetWidth;
+			const relY = (midY - rect.top) / popupImage.offsetHeight;
+			
+			// Adjust translation like we do for mouse wheel
+			const originalWidth = popupImage.offsetWidth / scale;
+			const originalHeight = popupImage.offsetHeight / scale;
+			
+			if (newScale > scale) {
+			  translateX -= (newScale - scale) * originalWidth * (relX - 0.5);
+			  translateY -= (newScale - scale) * originalHeight * (relY - 0.5);
+			} else {
+			  translateX += (scale - newScale) * originalWidth * (relX - 0.5);
+			  translateY += (scale - newScale) * originalHeight * (relY - 0.5);
+			}
+			
+			scale = newScale;
+			applyTransform();
+		  }
+		  
+		  lastTouchDistance = currentDistance;
+		}
+	  });
+	  
+	  popupImage.addEventListener('touchend', function() {
+		isDragging = false;
+		lastTouchDistance = 0;
+	  });
+	  
+	  // Keyboard shortcuts
+	  window.addEventListener('keydown', function(e) {
+		if (popup.style.display === 'block') {
+		  switch (e.key) {
+			case 'Escape':
+			  closePopup();
+			  break;
+			case '+':
+			case '=':
+			  scale = Math.min(5, scale + 0.2);
+			  applyTransform();
+			  break;
+			case '-':
+			  scale = Math.max(0.5, scale - 0.2);
+			  applyTransform();
+			  break;
+			case '0':
+			  resetTransform();
+			  break;
+			case 'ArrowUp':
+			  translateY += 50;
+			  applyTransform();
+			  break;
+			case 'ArrowDown':
+			  translateY -= 50;
+			  applyTransform();
+			  break;
+			case 'ArrowLeft':
+			  translateX += 50;
+			  applyTransform();
+			  break;
+			case 'ArrowRight':
+			  translateX -= 50;
+			  applyTransform();
+			  break;
+		  }
+		}
+	  });
+	  
+	  // Apply transforms to the image
+	  function applyTransform() {
+		// Limit panning based on current zoom level
+		const maxTranslateX = (scale - 1) * popupImage.offsetWidth / 2;
+		const maxTranslateY = (scale - 1) * popupImage.offsetHeight / 2;
+		
+		// Only constrain if we're zoomed in
+		if (scale > 1) {
+		  translateX = Math.max(-maxTranslateX, Math.min(maxTranslateX, translateX));
+		  translateY = Math.max(-maxTranslateY, Math.min(maxTranslateY, translateY));
+		} else {
+		  // If not zoomed in, reset translation
+		  translateX = 0;
+		  translateY = 0;
+		}
+		
+		popupImage.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+	  }
+	  
+	  // Reset transform values
+	  function resetTransform() {
+		scale = 1;
+		translateX = 0;
+		translateY = 0;
+		applyTransform();
+	  }
+	});
+	</script>
+
 </body>
 </html>
