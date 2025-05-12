@@ -382,27 +382,33 @@
 						<div class="box-inner pb-0">
 						    <h2 class="title title--h3">My Areas of Expertise</h2>
 							<div class="row">
-							    <!-- Case Item -->
-							    <div class="col-12 col-lg-6">
-							        <div class="case-item box box__second">
-									    <img class="case-item__icon" src="assets/icons/icon-design.svg" alt="" />
-										<div>
-									        <h3 class="title title--h5" id="typewriter" data-text="Pharma — Finance — Science"></h3>
-										    <p class="case-item__caption"></p>
-										</div>	
-									</div>
+								<!-- Case Item -->
+								<div class="col-12 col-lg-6">
+								  <div class="case-item box box__second">
+									<img class="case-item__icon" src="assets/icons/icon-design.svg" alt="" />
+									<div>
+									  <!-- note the class and real newlines in data-text -->
+									  <h3 class="title title--h5 typewriter" data-text="Pharma
+							  Finance
+							  Science"></h3>
+									  <p class="case-item__caption"></p>
+									</div>  
+								  </div>
 								</div>
 								
 								<!-- Case Item -->
 								<div class="col-12 col-lg-6">
-							        <div class="case-item box box__second">
-									    <img class="case-item__icon" src="assets/icons/icon-dev.svg" alt="" />
-										<div>
-									        <h3 class="title title--h5" id="typewriter" data-text="IT & Software Development"></h3>
-										    <p class="case-item__caption"></p>
-										</div>
+								  <div class="case-item box box__second">
+									<img class="case-item__icon" src="assets/icons/icon-dev.svg" alt="" />
+									<div>
+									  <h3 class="title title--h5 typewriter" data-text="IT & Software
+							  Development"></h3>
+									  <p class="case-item__caption"></p>
 									</div>
+								  </div>
 								</div>
+							  </div>
+							  
 								
 								<!-- Case Item -->
 								<div class="col-12 col-lg-6">
@@ -1073,45 +1079,39 @@ else if (window.attachEvent) {
 		</script>
 	
 	<script>
-		const el = document.getElementById("typewriter");
-		const text = el.dataset.text;
+		document.querySelectorAll(".typewriter").forEach(el => {
+		  const text = el.dataset.text;
+		  let html = "";
 	  
-		// Convert text to spans per letter
-		let html = "";
-		[...text].forEach((char, i) => {
-		  if (char === "\n") {
-			html += "<br>";
-		  } else {
-			html += `<span class="letter" style="animation-delay: ${i * 0.05}s">${char}</span>`;
-		  }
-		});
+		  [...text].forEach((char, i) => {
+			if (char === "\n") {
+			  html += "<br>";
+			} else {
+			  html += `<span class="letter" style="animation-delay:${i*0.05}s">${char}</span>`;
+			}
+		  });
 	  
-		// Add cursor at the end
-		html += '<span class="cursor" id="cursor"></span>';
-		el.innerHTML = html;
+		  html += '<span class="cursor"></span>';
+		  el.innerHTML = html;
 	  
-		// Trigger typing on scroll into view
-		const observer = new IntersectionObserver(entries => {
-		  entries.forEach(entry => {
-			if (entry.isIntersecting) {
+		  const observer = new IntersectionObserver(entries => {
+			entries.forEach(entry => {
+			  if (!entry.isIntersecting) return;
 			  const letters = el.querySelectorAll(".letter");
 			  letters.forEach(letter => {
 				letter.style.animationPlayState = "running";
 			  });
-	  
-			  // Show cursor after typing
-			  const cursor = document.getElementById("cursor");
-			  const totalDelay = letters.length * 0.05 * 1000;
+			  // show cursor after last letter
+			  const total = letters.length * 0.05 * 1000;
 			  setTimeout(() => {
-				cursor.style.opacity = 1;
-			  }, totalDelay);
-	  
-			  observer.disconnect(); // only once
-			}
+				el.querySelector(".cursor").style.opacity = 1;
+			  }, total);
+			  observer.disconnect();
+			});
 		  });
+		  observer.observe(el);
 		});
-	  
-		observer.observe(el);
 	  </script>
+	  
 </body>
 </html>
