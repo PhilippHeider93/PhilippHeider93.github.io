@@ -2820,7 +2820,6 @@ border-radius: 100%;
 }
 
 
-/* Base project card styling */
 .projects-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
@@ -2888,19 +2887,24 @@ border-radius: 100%;
   opacity: 1;
 }
 
-/* Mouse-following zoom effect (for projects 1-2) */
+/* Interactive zoom and pan effect (for projects 1-2) */
 .zoom-container {
   overflow: hidden;
   position: relative;
   width: 100%;
   height: 100%;
+  cursor: grab;
+}
+
+.zoom-container:active {
+  cursor: grabbing;
 }
 
 .zoom-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.5s ease;
+  transition: transform 0.3s ease;
   transform-origin: center center;
 }
 

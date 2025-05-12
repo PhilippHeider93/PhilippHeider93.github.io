@@ -2,38 +2,120 @@
 <html lang="en">
 
 <script>
-	// Image slideshow and interactive zoom functionality
+	// Interactive zoom and pan functionality
 	document.addEventListener('DOMContentLoaded', function() {
-		// Handle mouse-following zoom for projects 1-2
+		// Handle interactive zoom and pan for projects 1-2
 		const zoomContainers = document.querySelectorAll('.zoom-container');
 		
 		zoomContainers.forEach(container => {
 			const zoomImage = container.querySelector('.zoom-image');
+			let isDragging = false;
+			let currentZoom = 1;
+			let startX, startY, translateX = 0, translateY = 0;
+			let lastTranslateX = 0, lastTranslateY = 0;
 			
-			// Mouse move handler for zoom effect
-			container.addEventListener('mousemove', (e) => {
-				// Get cursor position inside container
+			// Min and max zoom levels
+			const minZoom = 1;
+			const maxZoom = 3;
+			
+			// Mouse wheel handler for zoom
+			container.addEventListener('wheel', (e) => {
+				e.preventDefault();
+				
+				// Get cursor position inside container for zoom origin
 				const rect = container.getBoundingClientRect();
-				const xPos = (e.clientX - rect.left) / rect.width;
-				const yPos = (e.clientY - rect.top) / rect.height;
+				const mouseX = e.clientX - rect.left;
+				const mouseY = e.clientY - rect.top;
 				
-				// Set the transform origin to the mouse position
-				zoomImage.style.transformOrigin = `${xPos * 100}% ${yPos * 100}%`;
+				// Calculate zoom direction and new zoom level
+				const delta = -Math.sign(e.deltaY);
+				const zoomFactor = 0.1; // How much to zoom per wheel tick
+				const newZoom = Math.max(minZoom, Math.min(maxZoom, currentZoom + delta * zoomFactor));
 				
-				// Calculate translation amount based on cursor position
-				// This makes the image move in the direction of the cursor
-				const moveX = (xPos - 0.5) * -20; // Move opposite to cursor x position
-				const moveY = (yPos - 0.5) * -20; // Move opposite to cursor y position
+				// If we're at min zoom and trying to zoom out further, just return
+				if (currentZoom === minZoom && delta < 0) {
+					return;
+				}
 				
-				// Apply the zoom and translation
-				zoomImage.style.transform = `scale(1.5) translate(${moveX}px, ${moveY}px)`;
+				// Calculate mouse position in image space
+				const mouseXPercent = mouseX / container.offsetWidth;
+				const mouseYPercent = mouseY / container.offsetHeight;
+				
+				// Calculate how much the image should move to keep the mouse point fixed
+				const newTranslateX = translateX - ((newZoom - currentZoom) * container.offsetWidth * mouseXPercent);
+				const newTranslateY = translateY - ((newZoom - currentZoom) * container.offsetHeight * mouseYPercent);
+				
+				// Update values
+				currentZoom = newZoom;
+				translateX = newTranslateX;
+				translateY = newTranslateY;
+				
+				// Apply transform
+				updateTransform();
 			});
 			
-			// Reset transform on mouse leave
-			container.addEventListener('mouseleave', () => {
-				zoomImage.style.transform = 'scale(1)';
-				zoomImage.style.transformOrigin = 'center center';
+			// Mouse down handler for pan start
+			container.addEventListener('mousedown', (e) => {
+				// Only allow panning when zoomed in
+				if (currentZoom > minZoom) {
+					isDragging = true;
+					startX = e.clientX - translateX;
+					startY = e.clientY - translateY;
+					container.style.cursor = 'grabbing';
+				}
 			});
+			
+			// Mouse move handler for panning
+			window.addEventListener('mousemove', (e) => {
+				if (!isDragging) return;
+				
+				translateX = e.clientX - startX;
+				translateY = e.clientY - startY;
+				
+				// Apply transform
+				updateTransform();
+			});
+			
+			// Mouse up and mouse leave handlers for pan end
+			window.addEventListener('mouseup', () => {
+				if (isDragging) {
+					isDragging = false;
+					lastTranslateX = translateX;
+					lastTranslateY = translateY;
+					container.style.cursor = 'grab';
+				}
+			});
+			
+			container.addEventListener('mouseleave', () => {
+				// Reset everything if mouse leaves container
+				isDragging = false;
+				if (currentZoom === minZoom) {
+					// If not zoomed, reset translation too
+					translateX = 0;
+					translateY = 0;
+				}
+				updateTransform();
+			});
+			
+			// Double click to reset zoom
+			container.addEventListener('dblclick', () => {
+				currentZoom = minZoom;
+				translateX = 0;
+				translateY = 0;
+				updateTransform();
+			});
+			
+			// Function to update transform based on current state
+			function updateTransform() {
+				// Limit pan to reasonable bounds based on zoom level
+				const maxTranslateX = (currentZoom - 1) * container.offsetWidth / 2;
+				const maxTranslateY = (currentZoom - 1) * container.offsetHeight / 2;
+				
+				translateX = Math.max(-maxTranslateX, Math.min(maxTranslateX, translateX));
+				translateY = Math.max(-maxTranslateY, Math.min(maxTranslateY, translateY));
+				
+				zoomImage.style.transform = `scale(${currentZoom}) translate(${translateX / currentZoom}px, ${translateY / currentZoom}px)`;
+			}
 		});
 		
 		// Initialize slideshow animations for projects 3-4
@@ -81,7 +163,7 @@
 			}
 		});
 	});
-	</script> 
+	</script>
 
 <head>
     <meta charset="utf-8" />
