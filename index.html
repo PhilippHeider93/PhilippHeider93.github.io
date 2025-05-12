@@ -388,9 +388,7 @@
 									<img class="case-item__icon" src="assets/icons/icon-design.svg" alt="" />
 									<div>
 									  <!-- note the class and real newlines in data-text -->
-									  <h3 class="title title--h5 typewriter" data-text="Pharma
-							  Finance
-							  Science"></h3>
+									  <h3 class="title title--h5 typewriter" data-text="Pharma\nFinance\nScience"></h3>
 									  <p class="case-item__caption"></p>
 									</div>  
 								  </div>
@@ -401,8 +399,7 @@
 								  <div class="case-item box box__second">
 									<img class="case-item__icon" src="assets/icons/icon-dev.svg" alt="" />
 									<div>
-									  <h3 class="title title--h5 typewriter" data-text="IT & Software
-							  Development"></h3>
+									  <h3 class="title title--h5 typewriter" data-text="IT& Software Development"></h3>
 									  <p class="case-item__caption"></p>
 									</div>
 								  </div>
@@ -1085,11 +1082,22 @@ else if (window.attachEvent) {
 	  
 		  [...text].forEach((char, i) => {
 			if (char === "\n") {
-			  html += "<br>";
-			} else {
-			  html += `<span class="letter" style="animation-delay:${i*0.05}s">${char}</span>`;
+				html += "<br>";
 			}
-		  });
+			else if (char === " ") {
+				// render a non-breaking space so it shows up
+				html += `<span 
+							class="letter" 
+							style="animation-delay:${i * 0.05}s"
+						>&nbsp;</span>`;
+			}
+			else {
+				html += `<span 
+							class="letter" 
+							style="animation-delay:${i * 0.05}s"
+						>${char}</span>`;
+			}
+			});
 	  
 		  html += '<span class="cursor"></span>';
 		  el.innerHTML = html;
