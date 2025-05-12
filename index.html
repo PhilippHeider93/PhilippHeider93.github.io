@@ -81,50 +81,7 @@
 			}
 		});
 	});
-	</script>
-	
-	<script>
-		const el = document.getElementById("typewriter");
-		const text = el.dataset.text;
-	  
-		// Convert text to spans per letter
-		let html = "";
-		[...text].forEach((char, i) => {
-		  if (char === "\n") {
-			html += "<br>";
-		  } else {
-			html += `<span class="letter" style="animation-delay: ${i * 0.05}s">${char}</span>`;
-		  }
-		});
-	  
-		// Add cursor at the end
-		html += '<span class="cursor" id="cursor"></span>';
-		el.innerHTML = html;
-	  
-		// Trigger typing on scroll into view
-		const observer = new IntersectionObserver(entries => {
-		  entries.forEach(entry => {
-			if (entry.isIntersecting) {
-			  const letters = el.querySelectorAll(".letter");
-			  letters.forEach(letter => {
-				letter.style.animationPlayState = "running";
-			  });
-	  
-			  // Show cursor after typing
-			  const cursor = document.getElementById("cursor");
-			  const totalDelay = letters.length * 0.05 * 1000;
-			  setTimeout(() => {
-				cursor.style.opacity = 1;
-			  }, totalDelay);
-	  
-			  observer.disconnect(); // only once
-			}
-		  });
-		});
-	  
-		observer.observe(el);
-	  </script>
-	  
+	</script>	  
 
 <head>
     <meta charset="utf-8" />
@@ -1032,6 +989,47 @@ else if (window.attachEvent) {
 	
 
 		</script>
-
+	
+	<script>
+		const el = document.getElementById("typewriter");
+		const text = el.dataset.text;
+	  
+		// Convert text to spans per letter
+		let html = "";
+		[...text].forEach((char, i) => {
+		  if (char === "\n") {
+			html += "<br>";
+		  } else {
+			html += `<span class="letter" style="animation-delay: ${i * 0.05}s">${char}</span>`;
+		  }
+		});
+	  
+		// Add cursor at the end
+		html += '<span class="cursor" id="cursor"></span>';
+		el.innerHTML = html;
+	  
+		// Trigger typing on scroll into view
+		const observer = new IntersectionObserver(entries => {
+		  entries.forEach(entry => {
+			if (entry.isIntersecting) {
+			  const letters = el.querySelectorAll(".letter");
+			  letters.forEach(letter => {
+				letter.style.animationPlayState = "running";
+			  });
+	  
+			  // Show cursor after typing
+			  const cursor = document.getElementById("cursor");
+			  const totalDelay = letters.length * 0.05 * 1000;
+			  setTimeout(() => {
+				cursor.style.opacity = 1;
+			  }, totalDelay);
+	  
+			  observer.disconnect(); // only once
+			}
+		  });
+		});
+	  
+		observer.observe(el);
+	  </script>
 </body>
 </html>
