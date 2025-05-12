@@ -2948,7 +2948,7 @@ border-radius: 100%;
   white-space: pre-line;
   position: relative;
   display: inline-block;
-  line-height: 1.5;
+  line-height: 2;
 }
 
 /* the typing animation is defined here… */
