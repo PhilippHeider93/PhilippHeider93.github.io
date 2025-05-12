@@ -2820,4 +2820,239 @@ border-radius: 100%;
 }
 
 
+/* Projects Grid */
+.projects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 30px;
+    margin-bottom: 60px;
+}
+
+.project-card {
+    background-color: var(--light-bg);
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.project-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Image hover animation */
+.project-image-container {
+    position: relative;
+    width: 100%;
+    height: 200px;
+    overflow: hidden;
+    border-bottom: 1px solid #e1e4e8;
+}
+
+.project-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: opacity 0.5s ease;
+}
+
+.project-image-container .image-slideshow {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+}
+
+.project-image-container:hover .image-slideshow {
+    opacity: 1;
+}
+
+.image-slideshow img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity 0.8s ease;
+}
+
+.image-slideshow img.active {
+    opacity: 1;
+}
+
+.project-content {
+    padding: 20px;
+}
+
+.project-title {
+    font-size: 1.25rem;
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+.project-description {
+    margin-bottom: 15px;
+    color: #586069;
+    font-size: 0.95rem;
+}
+
+.tech-stack {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 15px;
+}
+
+.tech-tag {
+    background-color: #f1f8ff;
+    color: var(--primary-color);
+    padding: 3px 8px;
+    border-radius: 15px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.project-links {
+    display: flex;
+    gap: 12px;
+}
+
+.project-link {
+    display: inline-block;
+    padding: 6px 12px;
+    background-color: var(--primary-color);
+    color: white;
+    text-decoration: none;
+    border-radius: 3px;
+    font-weight: 500;
+    font-size: 0.8rem;
+    transition: background-color 0.2s ease;
+}
+
+.project-link:hover {
+    background-color: #0351aa;
+    text-decoration: none;
+}
+
+/* Skills Section */
+.skills-container {
+    margin-top: 60px;
+    padding: 40px;
+    background-color: var(--light-bg);
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+}
+
+.skills-heading {
+    text-align: center;
+    margin-bottom: 25px;
+    color: var(--secondary-color);
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.skills-categories {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 25px;
+}
+
+.skill-category {
+    margin-bottom: 25px;
+}
+
+.category-title {
+    font-size: 1.1rem;
+    margin-bottom: 12px;
+    color: var(--secondary-color);
+    border-bottom: 1px solid #e1e4e8;
+    padding-bottom: 4px;
+    font-weight: 600;
+}
+
+.skill-item {
+    margin-bottom: 10px;
+}
+
+.skill-name {
+    font-weight: 500;
+    margin-bottom: 4px;
+    font-size: 0.9rem;
+    color: #444d56;
+}
+
+.skill-bar {
+    height: 8px;
+    background-color: #e0e0e0;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.skill-progress {
+    height: 100%;
+    background-color: var(--primary-color);
+}
+
+/* Call to action */
+.cta-container {
+    text-align: center;
+    margin-top: 50px;
+    padding: 30px;
+    background-color: #f6f8fa;
+    border-radius: var(--border-radius);
+    border: 1px solid #e1e4e8;
+}
+
+.cta-title {
+    font-size: 1.35rem;
+    color: var(--secondary-color);
+    margin-bottom: 15px;
+    font-weight: 600;
+}
+
+.cta-description {
+    max-width: 700px;
+    margin: 0 auto 20px;
+    color: #586069;
+    font-size: 0.95rem;
+}
+
+.cta-button {
+    display: inline-block;
+    padding: 8px 20px;
+    background-color: var(--primary-color);
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    font-weight: 500;
+    font-size: 0.9rem;
+    transition: background-color 0.2s ease;
+}
+
+.cta-button:hover {
+    background-color: #0351aa;
+    text-decoration: none;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .projects-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .skills-categories {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+
 /*# sourceMappingURL=style.css.map */
