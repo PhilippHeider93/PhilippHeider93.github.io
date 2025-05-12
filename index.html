@@ -2,49 +2,129 @@
 <html lang="en">
 
 <script>
-	// Image slideshow functionality
+	// Image slideshow and interactive zoom functionality
 	document.addEventListener('DOMContentLoaded', function() {
-		// Initialize slideshow animations
-		const containers = document.querySelectorAll('.project-image-container');
+		// Handle mouse-following zoom for projects 1-2
+		const zoomContainers = document.querySelectorAll('.zoom-container');
 		
-		containers.forEach(container => {
-			const slideshow = container.querySelector('.image-slideshow');
-			const slides = slideshow.querySelectorAll('.slide');
-			let activeIndex = 0;
-			let slideshowInterval;
+		zoomContainers.forEach(container => {
+			const zoomImage = container.querySelector('.zoom-image');
 			
-			// Set first slide as active
-			if (slides.length > 0) {
-				slides[0].classList.add('active');
-			}
-			
-			// Function to advance slideshow
-			function nextSlide() {
-				slides[activeIndex].classList.remove('active');
-				activeIndex = (activeIndex + 1) % slides.length;
-				slides[activeIndex].classList.add('active');
-			}
-			
-			// Start slideshow on hover
-			container.addEventListener('mouseenter', () => {
-				// Only start if we have more than one slide
-				if (slides.length > 1) {
-					slideshowInterval = setInterval(nextSlide, 1500);
-				}
+			// Mouse move handler for zoom effect
+			container.addEventListener('mousemove', (e) => {
+				// Get cursor position inside container
+				const rect = container.getBoundingClientRect();
+				const xPos = (e.clientX - rect.left) / rect.width;
+				const yPos = (e.clientY - rect.top) / rect.height;
+				
+				// Set the transform origin to the mouse position
+				zoomImage.style.transformOrigin = `${xPos * 100}% ${yPos * 100}%`;
+				
+				// Calculate translation amount based on cursor position
+				// This makes the image move in the direction of the cursor
+				const moveX = (xPos - 0.5) * -20; // Move opposite to cursor x position
+				const moveY = (yPos - 0.5) * -20; // Move opposite to cursor y position
+				
+				// Apply the zoom and translation
+				zoomImage.style.transform = `scale(1.5) translate(${moveX}px, ${moveY}px)`;
 			});
 			
-			// Stop and reset slideshow on mouse leave
+			// Reset transform on mouse leave
 			container.addEventListener('mouseleave', () => {
-				clearInterval(slideshowInterval);
-				
-				// Reset to first slide
-				slides.forEach(slide => slide.classList.remove('active'));
-				activeIndex = 0;
-				slides[0].classList.add('active');
+				zoomImage.style.transform = 'scale(1)';
+				zoomImage.style.transformOrigin = 'center center';
 			});
 		});
+		
+		// Initialize slideshow animations for projects 3-4
+		const containers = document.querySelectorAll('.project-image-container');
+		
+		containers.forEach((container, index) => {
+			// Only apply slideshow to projects 3-4
+			if (index >= 2) {
+				const slideshow = container.querySelector('.image-slideshow');
+				if (!slideshow) return;
+				
+				const slides = slideshow.querySelectorAll('.slide');
+				let activeIndex = 0;
+				let slideshowInterval;
+				
+				// Set first slide as active
+				if (slides.length > 0) {
+					slides[0].classList.add('active');
+				}
+				
+				// Function to advance slideshow
+				function nextSlide() {
+					slides[activeIndex].classList.remove('active');
+					activeIndex = (activeIndex + 1) % slides.length;
+					slides[activeIndex].classList.add('active');
+				}
+				
+				// Start slideshow on hover
+				container.addEventListener('mouseenter', () => {
+					// Only start if we have more than one slide
+					if (slides.length > 1) {
+						slideshowInterval = setInterval(nextSlide, 1500);
+					}
+				});
+				
+				// Stop and reset slideshow on mouse leave
+				container.addEventListener('mouseleave', () => {
+					clearInterval(slideshowInterval);
+					
+					// Reset to first slide
+					slides.forEach(slide => slide.classList.remove('active'));
+					activeIndex = 0;
+					slides[0].classList.add('active');
+				});
+			}
+		});
 	});
-</script>
+	</script>
+	
+	<script>
+		const el = document.getElementById("typewriter");
+		const text = el.dataset.text;
+	  
+		// Convert text to spans per letter
+		let html = "";
+		[...text].forEach((char, i) => {
+		  if (char === "\n") {
+			html += "<br>";
+		  } else {
+			html += `<span class="letter" style="animation-delay: ${i * 0.05}s">${char}</span>`;
+		  }
+		});
+	  
+		// Add cursor at the end
+		html += '<span class="cursor" id="cursor"></span>';
+		el.innerHTML = html;
+	  
+		// Trigger typing on scroll into view
+		const observer = new IntersectionObserver(entries => {
+		  entries.forEach(entry => {
+			if (entry.isIntersecting) {
+			  const letters = el.querySelectorAll(".letter");
+			  letters.forEach(letter => {
+				letter.style.animationPlayState = "running";
+			  });
+	  
+			  // Show cursor after typing
+			  const cursor = document.getElementById("cursor");
+			  const totalDelay = letters.length * 0.05 * 1000;
+			  setTimeout(() => {
+				cursor.style.opacity = 1;
+			  }, totalDelay);
+	  
+			  observer.disconnect(); // only once
+			}
+		  });
+		});
+	  
+		observer.observe(el);
+	  </script>
+	  
 
 <head>
     <meta charset="utf-8" />
@@ -168,96 +248,97 @@
 		                    <h1 class="title title--h1 first-title title__separate">About Me</h1>
 						    <p>Scientist with a background in biotechnology and several years of experience in the pharmaceutical industry, now transitioning into IT and Data Science to follow a long-standing passion for technology and analytical problem-solving. Combines scientific thinking, digital curiosity, and hands-on exposure to data-driven projects. Holds a Certificate in Digital Life Sciences and is eager to deepen technical skills through further academic training, with the goal of contributing to innovative, data-driven solutions across industries.</p>
                              </div>
-								<h2 class="title title--h3">IT Projects</h2>
-								<p class="section-subtitle">A showcase of my technical skills and problem-solving abilities as I transition from biotechnology to IT and data science.</p>
-								
-								<div class="projects-grid">
-									<!-- Project 1: Synably (Zoom and Slide effect) -->
-									<div class="project-card">
-										<div class="project-image-container">
-											<div class="zoom-container">
-												<img src="assets/img/dkeap casestudy.jpg" alt="Synably CRM" class="zoom-image">
-											</div>
-										</div>
-										<div class="project-content">
-											<h3 class="project-title">Synably - Mini CRM</h3>
-											<p class="project-description">A Django-based mini CRM to digitalize cross-functional collaboration. Synchronized user-access using OneDrive and SQLite, with plans for multi-tenant architecture using PostgreSQL.</p>
-											<div class="tech-stack">
-												<span class="tech-tag">Python</span>
-												<span class="tech-tag">Django</span>
-												<span class="tech-tag">Waitress</span>
-												<span class="tech-tag">Whitenoise</span>
-												<span class="tech-tag">Tauri 2.0</span>
-												<span class="tech-tag">JavaScript</span>
-												<span class="tech-tag">Tailwind CSS</span>
-												<span class="tech-tag">SQL</span>
-												<span class="tech-tag">Tabulator</span>
-												<span class="tech-tag">Chart.js</span>
-											</div>
-										</div>
-									</div>
-									
-									<!-- Project 2: Novartis (Zoom and Slide effect) -->
-									<div class="project-card">
-										<div class="project-image-container">
-											<div class="zoom-container">
-												<img src="assets/img/novartis_automatisation.jpg" alt="Novartis Automation" class="zoom-image">
-											</div>
-										</div>
-										<div class="project-content">
-											<h3 class="project-title">Novartis AG - Automation Solutions</h3>
-											<p class="project-description">Complaint-handling and lab-report automatisation system developed for Novartis AG, improving efficiency in processing and reporting.</p>
-											<div class="tech-stack">
-												<span class="tech-tag">VBA</span>
-												<span class="tech-tag">MS Custom UI</span>
-												<span class="tech-tag">XML Markup</span>
-												<span class="tech-tag">Office Integration</span>
-											</div>
-										</div>
-									</div>
-									
-									<!-- Project 3: SpieglTec (Slideshow effect) -->
-									<div class="project-card">
-										<div class="project-image-container">
-											<img src="assets/img/spiegltec/1.JPG" alt="Sharepoint Project Management" class="project-image">
-											<div class="image-slideshow">
-												<img src="assets/img/spiegltec/2.JPG" alt="Project Management Hub" class="slide">
-												<img src="assets/img/spiegltec/3.JPG" alt="Knowledge Hub" class="slide">
-												<img src="assets/img/spiegltec/4.JPG" alt="Workflow Automation" class="slide">
-											</div>
-										</div>
-										<div class="project-content">
-											<h3 class="project-title">SpieglTec - Project Management Hub</h3>
-											<p class="project-description">SharePoint-based project management and knowledge hub system for SpieglTec Consulting Engineers, enabling streamlined collaboration and information sharing.</p>
-											<div class="tech-stack">
-												<span class="tech-tag">Microsoft SharePoint</span>
-												<span class="tech-tag">Power Automate</span>
-												<span class="tech-tag">Power Apps</span>
-												<span class="tech-tag">JavaScript</span>
-												<span class="tech-tag">CSS</span>
-												<span class="tech-tag">HTML</span>
-											</div>
-										</div>
-									</div>
-									
-									<!-- Project 4: MH Transporte (Static image) -->
-									<div class="project-card">
-										<div class="project-image-container">
-											<img src="assets/img/mh transport/main.JPG" alt="CMS Website" class="project-image">
-										</div>
-										<div class="project-content">
-											<h3 class="project-title">MH Transporte & Logistik - Website</h3>
-											<p class="project-description">CMS-based website and media creation for MH Transporte & Logistik, featuring Google Maps integration and responsive design.</p>
-											<div class="tech-stack">
-												<span class="tech-tag">JavaScript</span>
-												<span class="tech-tag">Google Maps API</span>
-												<span class="tech-tag">PHP</span>
-												<span class="tech-tag">HTML</span>
-												<span class="tech-tag">CSS</span>
-											</div>
-										</div>
-									</div>
-								</div>
+							 <h2 class="title title--h3">IT Projects</h2>
+							 <p class="section-subtitle">A showcase of my technical skills and problem-solving abilities as I transition from biotechnology to IT and data science.</p>
+							 
+							 <div class="projects-grid">
+								 <!-- Project 1: Synably (Zoom and Slide effect) -->
+								 <div class="project-card">
+									 <div class="project-image-container">
+										 <div class="zoom-container">
+											 <img src="assets/img/dkeap casestudy.jpg" alt="Synably CRM" class="zoom-image">
+										 </div>
+									 </div>
+									 <div class="project-content">
+										 <h3 class="project-title">Synably - Mini CRM</h3>
+										 <p class="project-description">A Django-based mini CRM to digitalize cross-functional collaboration. Synchronized user-access using OneDrive and SQLite, with plans for multi-tenant architecture using PostgreSQL.</p>
+										 <div class="tech-stack">
+											 <span class="tech-tag">Python</span>
+											 <span class="tech-tag">Django</span>
+											 <span class="tech-tag">Waitress</span>
+											 <span class="tech-tag">Whitenoise</span>
+											 <span class="tech-tag">Tauri 2.0</span>
+											 <span class="tech-tag">JavaScript</span>
+											 <span class="tech-tag">Tailwind CSS</span>
+											 <span class="tech-tag">SQL</span>
+											 <span class="tech-tag">Tabulator</span>
+											 <span class="tech-tag">Chart.js</span>
+										 </div>
+									 </div>
+								 </div>
+								 
+								 <!-- Project 2: Novartis (Zoom and Slide effect) -->
+								 <div class="project-card">
+									 <div class="project-image-container">
+										 <div class="zoom-container">
+											 <img src="assets/img/novartis_automatisation.jpg" alt="Novartis Automation" class="zoom-image">
+										 </div>
+									 </div>
+									 <div class="project-content">
+										 <h3 class="project-title">Novartis AG - Automation Solutions</h3>
+										 <p class="project-description">Complaint-handling and lab-report automatisation system developed for Novartis AG, improving efficiency in processing and reporting.</p>
+										 <div class="tech-stack">
+											 <span class="tech-tag">VBA</span>
+											 <span class="tech-tag">MS Custom UI</span>
+											 <span class="tech-tag">XML Markup</span>
+											 <span class="tech-tag">Office Integration</span>
+										 </div>
+									 </div>
+								 </div>
+								 
+								 <!-- Project 3: SpieglTec (Slideshow effect) -->
+								 <div class="project-card">
+									 <div class="project-image-container">
+										 <img src="assets/img/spiegltec/1.JPG" alt="Sharepoint Project Management" class="project-image">
+										 <div class="image-slideshow">
+											 <img src="assets/img/spiegltec/2.JPG" alt="Project Management Hub" class="slide">
+											 <img src="assets/img/spiegltec/3.JPG" alt="Knowledge Hub" class="slide">
+											 <img src="assets/img/spiegltec/4.JPG" alt="Workflow Automation" class="slide">
+										 </div>
+									 </div>
+									 <div class="project-content">
+										 <h3 class="project-title">SpieglTec - Project Management Hub</h3>
+										 <p class="project-description">SharePoint-based project management and knowledge hub system for SpieglTec Consulting Engineers, enabling streamlined collaboration and information sharing.</p>
+										 <div class="tech-stack">
+											 <span class="tech-tag">Microsoft SharePoint</span>
+											 <span class="tech-tag">Power Automate</span>
+											 <span class="tech-tag">Power Apps</span>
+											 <span class="tech-tag">JavaScript</span>
+											 <span class="tech-tag">CSS</span>
+											 <span class="tech-tag">HTML</span>
+										 </div>
+									 </div>
+								 </div>
+								 
+								 <!-- Project 4: MH Transporte (Static image) -->
+								 <div class="project-card">
+									 <div class="project-image-container">
+										 <img src="assets/img/mh transport/main.JPG" alt="CMS Website" class="project-image">
+									 </div>
+									 <div class="project-content">
+										 <h3 class="project-title">MH Transporte & Logistik - Website</h3>
+										 <p class="project-description">CMS-based website and media creation for MH Transporte & Logistik, featuring Google Maps integration and responsive design.</p>
+										 <div class="tech-stack">
+											 <span class="tech-tag">JavaScript</span>
+											 <span class="tech-tag">Google Maps API</span>
+											 <span class="tech-tag">PHP</span>
+											 <span class="tech-tag">HTML</span>
+											 <span class="tech-tag">CSS</span>
+										 </div>
+									 </div>
+								 </div>
+							 </div>
+
 						<!-- What -->
 						<div class="box-inner pb-0">
 						    <h2 class="title title--h3">My Areas of Expertise</h2>
@@ -267,7 +348,7 @@
 							        <div class="case-item box box__second">
 									    <img class="case-item__icon" src="assets/icons/icon-design.svg" alt="" />
 										<div>
-									        <h3 class="title title--h5">Pharma<br />Finance<br />Science</h3>
+									        <h3 class="title title--h5" id="typewriter" data-text="Pharma\nFinance\nScience"></h3>
 										    <p class="case-item__caption"></p>
 										</div>	
 									</div>
