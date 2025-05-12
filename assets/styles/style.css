@@ -2951,31 +2951,33 @@ border-radius: 100%;
   line-height: 1.5;
 }
 
-.letter {
-  opacity: 0;
-  display: inline-block;
-  animation: fadeIn 0.05s forwards;
-  animation-play-state: paused;
-}
-
+/* the typing animation is defined here… */
 @keyframes fadeIn {
   to { opacity: 1; }
 }
+@keyframes blink {
+  0%,100% { opacity: 1; }
+  50%     { opacity: 0; }
+}
 
+/* each letter starts invisible, with the animation paused */
+.letter {
+  opacity: 0;
+  display: inline-block;
+  /* shorthand for: name, duration, fill-mode, play-state */
+  animation: fadeIn 0.05s forwards paused;
+}
+
+/* the cursor */
 .cursor {
   display: inline-block;
   width: 2px;
   height: 1em;
   background-color: black;
   margin-left: 2px;
-  animation: blink 0.7s steps(1) infinite;
   vertical-align: bottom;
   opacity: 0;
-}
-
-@keyframes blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0; }
+  animation: blink 0.7s steps(1) infinite;
 }
 
 
