@@ -6,6 +6,24 @@
     <title>Philipp Heider, MSc.</title>
 	<meta name="robots" content="nofollow, noimageindex" />
 	<meta name="googlebot" content="nofollow, noimageindex" />
+	<script>
+	// Detect and block unwanted crawlers
+	(function() {
+	const blockedUserAgents = [
+		'googlebot', 'bingbot', 'slurp', 'duckduckbot', 'baiduspider',
+		'yandexbot', 'sogou', 'exabot', 'facebookexternalhit', 'ia_archiver'
+	];
+	
+	const userAgent = navigator.userAgent.toLowerCase();
+	const isBot = blockedUserAgents.some(bot => userAgent.includes(bot));
+	
+	if (isBot) {
+		// Replace page content with minimal content for bots
+		document.documentElement.innerHTML = '<html><head><title>Page unavailable</title></head><body>This content is not available to automated crawlers.</body></html>';
+		throw new Error('Crawler detected');
+	}
+	})();
+	</script>
 <!-- Global site tag (gtag.js) - Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=UA-58684918-1"></script>
 <script>
@@ -52,6 +70,9 @@
 	<link rel="stylesheet" type="text/css" href="assets/styles/hint.css">
 	<link rel="stylesheet" type="text/css" href="assets/styles/media-popup.css"/>
 	
+
+	<link rel="canonical" href="https://philippheider93.github.io/" />
+
 </head>
 <body class="bg-green">
     <!-- Preloader -->

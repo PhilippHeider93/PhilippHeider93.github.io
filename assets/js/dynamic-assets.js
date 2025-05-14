@@ -1,5 +1,12 @@
 // dynamic-assets.js - Handles dynamic loading of assets to prevent direct references in HTML
 
+// Check if being executed in an iframe or loaded directly
+if (window.location !== window.parent.location || 
+    document.referrer.indexOf(window.location.hostname) === -1) {
+  console.error('Unauthorized access');
+  throw new Error('Unauthorized access');
+}
+
 document.addEventListener('DOMContentLoaded', function() {
   // Map of asset keys to their actual paths
   const assetMap = {

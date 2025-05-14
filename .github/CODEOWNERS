@@ -1,0 +1,9 @@
+# Default owners for everything
+* @phryll
+
+# Protect sensitive files
+assets/* @phryll
+assets/certs/* @phryll
+assets/img/* @phryll
+assets/js/media-popup.js @phryll
+assets/js/dynamic-assets.js @phryll
