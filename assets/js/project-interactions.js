@@ -1,12 +1,5 @@
 // project-interactions.js - Handles thumbnail zoom/pan and slideshow effects
 
-// Check if being executed in an iframe or loaded directly
-if (window.location !== window.parent.location || 
-    document.referrer.indexOf(window.location.hostname) === -1) {
-  console.error('Unauthorized access');
-  throw new Error('Unauthorized access');
-}
-
 document.addEventListener('DOMContentLoaded', function() {
   // Zoom and pan functionality for thumbnails
   const zoomContainers = document.querySelectorAll('.zoom-container');
