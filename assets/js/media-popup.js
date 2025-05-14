@@ -18,18 +18,60 @@ document.addEventListener('DOMContentLoaded', function() {
   let lastTouchDistance = 0;
   let currentMedia = null;
   let isVideo = false;
+  let isIframe = false;
   
-  // Initialize popup with either image or video
-  function openPopup(src, title, isVideoMedia = false) {
+  // Store OneDrive embed URLs in a secure map with code identifiers
+  // This prevents the URLs from being directly visible in the HTML source
+  const embedMap = {
+    // Use simple key names that don't reveal the actual content
+    'synably': 'https://1drv.ms/v/c/b14276315fd21aa5/IQSGhfM7C6WRTLLkuP15KmaEAcdg_Ru_BmBNAqfusSdRSAg',
+    // Add more video mappings as needed
+    'project2': 'your_second_onedrive_url_here'
+  };
+  
+  // Initialize popup with either image, video, or iframe
+  function openPopup(src, title, type = 'image', embedKey = null) {
     popupTitle.textContent = title;
-    isVideo = isVideoMedia;
+    isVideo = type === 'video';
+    isIframe = type === 'iframe';
     
     // Remove any existing media
     while (popupContent.firstChild) {
       popupContent.removeChild(popupContent.firstChild);
     }
     
-    if (isVideo) {
+    // Toggle zoom controls visibility
+    const zoomControls = document.querySelector('.popup-controls');
+    zoomControls.style.display = isIframe ? 'none' : 'flex';
+    
+    if (isIframe && embedKey) {
+      // Get the embed URL from our secure map
+      const embedUrl = embedMap[embedKey];
+      if (!embedUrl) {
+        console.error('Embed URL not found for key:', embedKey);
+        return;
+      }
+      
+      // Create container for responsive iframe
+      const iframeContainer = document.createElement('div');
+      iframeContainer.className = 'iframe-container';
+      
+      // Create and configure the iframe
+      const iframe = document.createElement('iframe');
+      iframe.src = embedUrl;
+      iframe.width = '100%';
+      iframe.height = '100%';
+      iframe.frameBorder = '0';
+      iframe.scrolling = 'no';
+      iframe.allowFullscreen = true;
+      
+      // Add iframe to container
+      iframeContainer.appendChild(iframe);
+      popupContent.appendChild(iframeContainer);
+      popupContent.classList.add('iframe-mode');
+      currentMedia = iframe;
+      
+    } else if (isVideo) {
       // Create video element
       const video = document.createElement('video');
       video.id = 'popupVideo';
@@ -43,7 +85,9 @@ document.addEventListener('DOMContentLoaded', function() {
       video.style.transformOrigin = 'center center';
       video.style.boxShadow = '0 5px 25px rgba(0, 0, 0, 0.2)';
       popupContent.appendChild(video);
+      popupContent.classList.remove('iframe-mode');
       currentMedia = video;
+      
     } else {
       // Create image element
       const img = document.createElement('img');
@@ -56,15 +100,18 @@ document.addEventListener('DOMContentLoaded', function() {
       img.style.transformOrigin = 'center center';
       img.style.boxShadow = '0 5px 25px rgba(0, 0, 0, 0.2)';
       popupContent.appendChild(img);
+      popupContent.classList.remove('iframe-mode');
       currentMedia = img;
     }
     
     popup.style.display = 'block';
     document.body.style.overflow = 'hidden';
-    resetTransform();
     
-    // Setup event listeners for the new media element
-    setupMediaInteraction(currentMedia);
+    // Only setup zoom/pan for images and videos
+    if (!isIframe) {
+      resetTransform();
+      setupMediaInteraction(currentMedia);
+    }
   }
   
   // Setup interaction events for current media (image or video)
@@ -216,10 +263,16 @@ document.addEventListener('DOMContentLoaded', function() {
   function closePopup() {
     popup.style.display = 'none';
     document.body.style.overflow = '';
+    popupContent.classList.remove('iframe-mode');
     
-    // If video is playing, pause it
+    // Clean up any media
     if (isVideo && currentMedia) {
       currentMedia.pause();
+    }
+    
+    // Clear the popup content to stop any iframe playback
+    while (popupContent.firstChild) {
+      popupContent.removeChild(popupContent.firstChild);
     }
   }
   
@@ -238,12 +291,16 @@ document.addEventListener('DOMContentLoaded', function() {
         container.addEventListener('click', function(e) {
           if (isDragging) return;
           
-          // Check if this image has a data-video-src attribute
+          // Check for different media types using data attributes
           const videoSrc = img.getAttribute('data-video-src');
-          if (videoSrc) {
-            openPopup(videoSrc, projectTitle, true);
+          const embedKey = img.getAttribute('data-embed-key');
+          
+          if (embedKey) {
+            openPopup(null, projectTitle, 'iframe', embedKey);
+          } else if (videoSrc) {
+            openPopup(videoSrc, projectTitle, 'video');
           } else {
-            openPopup(img.src, projectTitle, false);
+            openPopup(img.src, projectTitle, 'image');
           }
         });
       }
@@ -259,16 +316,21 @@ document.addEventListener('DOMContentLoaded', function() {
   });
   
   zoomInBtn.addEventListener('click', function() {
+    if (isIframe) return;
     scale = Math.min(5, scale + 0.5);
     applyTransform();
   });
   
   zoomOutBtn.addEventListener('click', function() {
+    if (isIframe) return;
     scale = Math.max(0.5, scale - 0.5);
     applyTransform();
   });
   
-  resetBtn.addEventListener('click', resetTransform);
+  resetBtn.addEventListener('click', function() {
+    if (isIframe) return;
+    resetTransform();
+  });
   
   // Global mouse move and up
   window.addEventListener('mousemove', function(e) {
@@ -296,31 +358,45 @@ document.addEventListener('DOMContentLoaded', function() {
           break;
         case '+':
         case '=':
-          scale = Math.min(5, scale + 0.2);
-          applyTransform();
+          if (!isIframe) {
+            scale = Math.min(5, scale + 0.2);
+            applyTransform();
+          }
           break;
         case '-':
-          scale = Math.max(0.5, scale - 0.2);
-          applyTransform();
+          if (!isIframe) {
+            scale = Math.max(0.5, scale - 0.2);
+            applyTransform();
+          }
           break;
         case '0':
-          resetTransform();
+          if (!isIframe) {
+            resetTransform();
+          }
           break;
         case 'ArrowUp':
-          translateY += 50;
-          applyTransform();
+          if (!isIframe) {
+            translateY += 50;
+            applyTransform();
+          }
           break;
         case 'ArrowDown':
-          translateY -= 50;
-          applyTransform();
+          if (!isIframe) {
+            translateY -= 50;
+            applyTransform();
+          }
           break;
         case 'ArrowLeft':
-          translateX += 50;
-          applyTransform();
+          if (!isIframe) {
+            translateX += 50;
+            applyTransform();
+          }
           break;
         case 'ArrowRight':
-          translateX -= 50;
-          applyTransform();
+          if (!isIframe) {
+            translateX -= 50;
+            applyTransform();
+          }
           break;
       }
     }
