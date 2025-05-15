@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', function() {
   // This prevents the URLs from being directly visible in the HTML source
   const embedMap = {
     // Use simple key names that don't reveal the actual content
-    'synably': 'https://1drv.ms/v/c/b14276315fd21aa5/IQSGhfM7C6WRTLLkuP15KmaEAcdg_Ru_BmBNAqfusSdRSAg',
+    'synably': 'https://1drv.ms/v/c/b14276315fd21aa5/IQQFnsL-v24gQKpre7kmJgzyAeKBsNNbIS9jCmj4fHZlhBQ',
     // Add more video mappings as needed
     'project2': 'your_second_onedrive_url_here'
   };
