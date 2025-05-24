@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // Store OneDrive embed URLs - using the direct URLs from the instructions
   const embedMap = {
-    'synably': 'https://onedrive.live.com/embed?resid=b14276315fd21aa5%212309&authkey=%21AKqru7kmJgzyAeI&em=2',
+    'synably': 'https://1drv.ms/v/c/b14276315fd21aa5/IQQFnsL-v24gQKpre7kmJgzyAeKBsNNbIS9jCmj4fHZlhBQ',
     // PowerPoint presentation (16:9 format)
     'spiegltec-pdf1': 'https://1drv.ms/b/c/b14276315fd21aa5/IQQ3YIoK1o6PSZSU6vNpQjrqAbMwfPMKJm6i-C4uODxrtXM',
     // Document (DIN A4 format)
