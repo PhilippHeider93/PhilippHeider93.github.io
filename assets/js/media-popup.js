@@ -555,9 +555,7 @@ document.addEventListener('DOMContentLoaded', function() {
           { type: 'iframe', embedKey: 'spiegltec-pdf1', alt: 'PowerPoint Presentation' },
           { type: 'iframe', embedKey: 'spiegltec-pdf2', alt: 'Documentation' },
           { type: 'image', src: 'assets/img/spiegltec/1.JPG', alt: 'Project Overview' },
-          { type: 'image', src: 'assets/img/spiegltec/2.JPG', alt: 'Project Management Hub' },
-          { type: 'image', src: 'assets/img/spiegltec/3.JPG', alt: 'Knowledge Hub' },
-          { type: 'image', src: 'assets/img/spiegltec/4.JPG', alt: 'Workflow Automation' }
+          { type: 'image', src: 'assets/img/spiegltec/2.JPG', alt: 'Project Management Hub' }
         ];
         
         openPopup(null, projectTitle, 'slideshow', null, slides);
