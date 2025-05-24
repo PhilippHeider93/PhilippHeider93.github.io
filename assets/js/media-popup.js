@@ -26,8 +26,10 @@ document.addEventListener('DOMContentLoaded', function() {
   let isSlideshow = false;
   
   // Store OneDrive embed URLs in a secure map with code identifiers
+  // Convert short URLs to proper embed format
   const embedMap = {
-    'synably': 'https://1drv.ms/v/c/b14276315fd21aa5/IQQFnsL-v24gQKpre7kmJgzyAeKBsNNbIS9jCmj4fHZlhBQ',
+    // Video URL converted to embed format
+    'synably': 'https://onedrive.live.com/embed?resid=b14276315fd21aa5%212309&authkey=%21AKqru7kmJgzyAeI&em=2',
     'spiegltec-pdf1': 'https://onedrive.live.com/embed?resid=b14276315fd21aa5%21563&authkey=%21AENmi1TW82pCOpk&em=2',
     'spiegltec-pdf2': 'https://onedrive.live.com/embed?resid=b14276315fd21aa5%21549&authkey=%21AINyF5DFyAh7mXg&em=2'
   };
@@ -39,10 +41,16 @@ document.addEventListener('DOMContentLoaded', function() {
     isIframe = type === 'iframe';
     isSlideshow = type === 'slideshow';
     
-    // Remove any existing media
+    // Clear previous content
     while (popupContent.firstChild) {
       popupContent.removeChild(popupContent.firstChild);
     }
+    
+    // Reset transform values
+    scale = 1;
+    translateX = 0;
+    translateY = 0;
+    currentMedia = null;
     
     if (isSlideshow && slidesData) {
       // Initialize slideshow
@@ -52,27 +60,41 @@ document.addEventListener('DOMContentLoaded', function() {
       // Create slide container
       const slideContainer = document.createElement('div');
       slideContainer.className = 'slide-container';
-      slideContainer.style.width = '100%';
-      slideContainer.style.height = '100%';
-      slideContainer.style.position = 'relative';
+      slideContainer.style.cssText = 'width: 100%; height: 100%; position: relative; display: flex; align-items: center; justify-content: center;';
+      
+      // Create slide content wrapper
+      const slideWrapper = document.createElement('div');
+      slideWrapper.className = 'slide-wrapper';
+      slideWrapper.style.cssText = 'width: 100%; height: 100%; position: relative;';
+      slideContainer.appendChild(slideWrapper);
       
       // Create navigation arrows
       const prevBtn = document.createElement('div');
       prevBtn.className = 'slide-nav prev';
       prevBtn.innerHTML = '❮';
-      prevBtn.style.cssText = 'position: absolute; left: 20px; top: 50%; transform: translateY(-50%); font-size: 2rem; color: #fff; cursor: pointer; padding: 10px; background: rgba(48, 76, 253, 0.7); border-radius: 4px; z-index: 10;';
-      prevBtn.onclick = () => changeSlide(-1);
+      prevBtn.style.cssText = 'position: absolute; left: 20px; top: 50%; transform: translateY(-50%); font-size: 2rem; color: #fff; cursor: pointer; padding: 10px 15px; background: rgba(48, 76, 253, 0.7); border-radius: 4px; z-index: 100; user-select: none;';
+      prevBtn.onmouseenter = function() { this.style.background = 'rgba(48, 76, 253, 0.9)'; };
+      prevBtn.onmouseleave = function() { this.style.background = 'rgba(48, 76, 253, 0.7)'; };
+      prevBtn.onclick = function(e) {
+        e.stopPropagation();
+        changeSlide(-1);
+      };
       
       const nextBtn = document.createElement('div');
       nextBtn.className = 'slide-nav next';
       nextBtn.innerHTML = '❯';
-      nextBtn.style.cssText = 'position: absolute; right: 20px; top: 50%; transform: translateY(-50%); font-size: 2rem; color: #fff; cursor: pointer; padding: 10px; background: rgba(48, 76, 253, 0.7); border-radius: 4px; z-index: 10;';
-      nextBtn.onclick = () => changeSlide(1);
+      nextBtn.style.cssText = 'position: absolute; right: 20px; top: 50%; transform: translateY(-50%); font-size: 2rem; color: #fff; cursor: pointer; padding: 10px 15px; background: rgba(48, 76, 253, 0.7); border-radius: 4px; z-index: 100; user-select: none;';
+      nextBtn.onmouseenter = function() { this.style.background = 'rgba(48, 76, 253, 0.9)'; };
+      nextBtn.onmouseleave = function() { this.style.background = 'rgba(48, 76, 253, 0.7)'; };
+      nextBtn.onclick = function(e) {
+        e.stopPropagation();
+        changeSlide(1);
+      };
       
       // Create indicators
       const indicators = document.createElement('div');
       indicators.className = 'slide-indicators';
-      indicators.style.cssText = 'position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; z-index: 10;';
+      indicators.style.cssText = 'position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; z-index: 100;';
       
       slides.forEach((_, index) => {
         const dot = document.createElement('div');
@@ -83,7 +105,10 @@ document.addEventListener('DOMContentLoaded', function() {
           dot.style.width = '24px';
           dot.style.borderRadius = '5px';
         }
-        dot.onclick = () => goToSlide(index);
+        dot.onclick = function(e) {
+          e.stopPropagation();
+          goToSlide(index);
+        };
         indicators.appendChild(dot);
       });
       
@@ -111,21 +136,7 @@ document.addEventListener('DOMContentLoaded', function() {
           return;
         }
         
-        const iframeContainer = document.createElement('div');
-        iframeContainer.className = 'iframe-container';
-        
-        const iframe = document.createElement('iframe');
-        iframe.src = embedUrl;
-        iframe.width = '100%';
-        iframe.height = '100%';
-        iframe.frameBorder = '0';
-        iframe.scrolling = 'no';
-        iframe.allowFullscreen = true;
-        
-        iframeContainer.appendChild(iframe);
-        popupContent.appendChild(iframeContainer);
-        popupContent.classList.add('iframe-mode');
-        currentMedia = iframe;
+        createIframe(embedUrl);
         
       } else if (isVideo) {
         const video = document.createElement('video');
@@ -168,15 +179,35 @@ document.addEventListener('DOMContentLoaded', function() {
     document.body.style.overflow = 'hidden';
   }
   
+  // Create iframe helper
+  function createIframe(embedUrl) {
+    const iframeContainer = document.createElement('div');
+    iframeContainer.className = 'iframe-container';
+    iframeContainer.style.cssText = 'width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; padding: 20px;';
+    
+    const iframe = document.createElement('iframe');
+    iframe.src = embedUrl;
+    iframe.style.cssText = 'width: 90%; height: 90%; max-width: 1200px; max-height: 800px; background: #fff; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); border: none;';
+    iframe.frameBorder = '0';
+    iframe.scrolling = 'no';
+    iframe.allowFullscreen = true;
+    iframe.allow = 'autoplay';
+    
+    iframeContainer.appendChild(iframe);
+    popupContent.appendChild(iframeContainer);
+    popupContent.classList.add('iframe-mode');
+  }
+  
   // Slideshow functions
   function showSlide(index) {
-    const slideContainer = popupContent.querySelector('.slide-container');
+    const slideWrapper = popupContent.querySelector('.slide-wrapper');
+    if (!slideWrapper) return;
+    
     const slide = slides[index];
     
-    // Remove existing slide content
-    const existingSlide = slideContainer.querySelector('.slide-content');
-    if (existingSlide) {
-      existingSlide.remove();
+    // Clear previous slide
+    while (slideWrapper.firstChild) {
+      slideWrapper.removeChild(slideWrapper.firstChild);
     }
     
     const slideContent = document.createElement('div');
@@ -188,10 +219,11 @@ document.addEventListener('DOMContentLoaded', function() {
       if (embedUrl) {
         const iframe = document.createElement('iframe');
         iframe.src = embedUrl;
-        iframe.style.cssText = 'width: 90%; height: 90%; max-width: 1200px; max-height: 800px; background: #fff; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.3);';
+        iframe.style.cssText = 'width: 90%; height: 90%; max-width: 1200px; max-height: 800px; background: #fff; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); border: none;';
         iframe.frameBorder = '0';
         iframe.scrolling = 'no';
         iframe.allowFullscreen = true;
+        iframe.allow = 'autoplay';
         slideContent.appendChild(iframe);
       }
     } else {
@@ -205,7 +237,7 @@ document.addEventListener('DOMContentLoaded', function() {
       setupMediaInteraction(img);
     }
     
-    slideContainer.insertBefore(slideContent, slideContainer.firstChild);
+    slideWrapper.appendChild(slideContent);
     updateIndicators(index);
   }
   
@@ -238,6 +270,7 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // Setup interaction events for current media (image or video)
   function setupMediaInteraction(media) {
+    if (!media) return;
     media.addEventListener('wheel', handleWheel);
     media.addEventListener('mousedown', handleMouseDown);
     media.addEventListener('touchstart', handleTouchStart);
@@ -246,8 +279,9 @@ document.addEventListener('DOMContentLoaded', function() {
     media.addEventListener('dblclick', resetTransform);
   }
   
-  // Event handlers remain the same...
+  // Event handlers
   function handleWheel(e) {
+    if (!currentMedia || isSlideshow) return;
     e.preventDefault();
     
     const rect = currentMedia.getBoundingClientRect();
@@ -276,6 +310,7 @@ document.addEventListener('DOMContentLoaded', function() {
   }
   
   function handleMouseDown(e) {
+    if (!currentMedia || isSlideshow) return;
     isDragging = true;
     startX = e.clientX - translateX;
     startY = e.clientY - translateY;
@@ -283,6 +318,7 @@ document.addEventListener('DOMContentLoaded', function() {
   }
   
   function handleTouchStart(e) {
+    if (!currentMedia || isSlideshow) return;
     if (e.touches.length === 1) {
       isDragging = true;
       startX = e.touches[0].clientX - translateX;
@@ -297,6 +333,7 @@ document.addEventListener('DOMContentLoaded', function() {
   }
   
   function handleTouchMove(e) {
+    if (!currentMedia || isSlideshow) return;
     e.preventDefault();
     
     if (e.touches.length === 1 && isDragging) {
@@ -381,94 +418,88 @@ document.addEventListener('DOMContentLoaded', function() {
       popupContent.removeChild(popupContent.firstChild);
     }
     
-    // Reset slideshow state
+    // Reset all states
     isSlideshow = false;
+    isVideo = false;
+    isIframe = false;
     slides = [];
     currentSlideIndex = 0;
+    scale = 1;
+    translateX = 0;
+    translateY = 0;
+    currentMedia = null;
     
     // Reset zoom controls visibility
     const zoomControls = document.querySelector('.popup-controls');
     zoomControls.style.display = 'flex';
   }
   
-  // Detect content type for project cards
-  const projectCards = document.querySelectorAll('.project-card');
-  
-  projectCards.forEach(card => {
-    const container = card.querySelector('.project-image-container');
-    const projectTitle = card.querySelector('.project-title').textContent;
-    
-    if (container) {
-      // Check for slideshow data
-      const slideshowData = container.getAttribute('data-slideshow');
+  // Setup click handlers for all zoom containers
+  document.querySelectorAll('.zoom-container').forEach(container => {
+    container.addEventListener('click', function(e) {
+      if (isDragging) return;
+      e.preventDefault();
+      e.stopPropagation();
       
-      if (slideshowData) {
-        // Parse slideshow data for SpieglTec project
-        container.addEventListener('click', function(e) {
-          if (isDragging) return;
-          
-          const slides = [
-            { type: 'iframe', embedKey: 'spiegltec-pdf1', alt: 'PowerPoint Presentation' },
-            { type: 'iframe', embedKey: 'spiegltec-pdf2', alt: 'Documentation' },
-            { type: 'image', src: 'assets/img/spiegltec/1.JPG', alt: 'Project Overview' },
-            { type: 'image', src: 'assets/img/spiegltec/2.JPG', alt: 'Project Management Hub' },
-            { type: 'image', src: 'assets/img/spiegltec/3.JPG', alt: 'Knowledge Hub' },
-            { type: 'image', src: 'assets/img/spiegltec/4.JPG', alt: 'Workflow Automation' }
-          ];
-          
-          openPopup(null, projectTitle, 'slideshow', null, slides);
-        });
+      const projectCard = this.closest('.project-card');
+      const projectTitle = projectCard.querySelector('.project-title').textContent;
+      
+      // Check if this is SpieglTec project (has slideshow)
+      if (projectTitle.includes('SpieglTec')) {
+        const slides = [
+          { type: 'image', src: 'assets/img/spiegltec/1.JPG', alt: 'Project Overview' },
+          { type: 'iframe', embedKey: 'spiegltec-pdf1', alt: 'PowerPoint Presentation' },
+          { type: 'iframe', embedKey: 'spiegltec-pdf2', alt: 'Documentation' },
+          { type: 'image', src: 'assets/img/spiegltec/2.JPG', alt: 'Project Management Hub' },
+          { type: 'image', src: 'assets/img/spiegltec/3.JPG', alt: 'Knowledge Hub' },
+          { type: 'image', src: 'assets/img/spiegltec/4.JPG', alt: 'Workflow Automation' }
+        ];
+        
+        openPopup(null, projectTitle, 'slideshow', null, slides);
       } else {
-        // Original single media logic
-        const img = container.querySelector('.zoom-image');
+        // Check for other media types
+        const img = this.querySelector('.zoom-image');
         if (img) {
-          container.addEventListener('click', function(e) {
-            if (isDragging) return;
-            
-            const videoSrc = img.getAttribute('data-video-src');
-            const embedKey = img.getAttribute('data-embed-key');
-            
-            if (embedKey) {
-              openPopup(null, projectTitle, 'iframe', embedKey);
-            } else if (videoSrc) {
-              openPopup(videoSrc, projectTitle, 'video');
-            } else {
-              openPopup(img.src, projectTitle, 'image');
-            }
-          });
+          const embedKey = img.getAttribute('data-embed-key');
+          
+          if (embedKey) {
+            openPopup(null, projectTitle, 'iframe', embedKey);
+          } else {
+            openPopup(img.src, projectTitle, 'image');
+          }
         }
       }
-    }
+    });
   });
   
   // Button event listeners
   closeBtn.addEventListener('click', closePopup);
   popup.addEventListener('click', function(e) {
-    if (e.target === popup || e.target === popupContent) {
+    if (e.target === popup) {
       closePopup();
     }
   });
   
   zoomInBtn.addEventListener('click', function() {
-    if (isIframe || isSlideshow) return;
+    if (isIframe || isSlideshow || !currentMedia) return;
     scale = Math.min(5, scale + 0.5);
     applyTransform();
   });
   
   zoomOutBtn.addEventListener('click', function() {
-    if (isIframe || isSlideshow) return;
+    if (isIframe || isSlideshow || !currentMedia) return;
     scale = Math.max(0.5, scale - 0.5);
     applyTransform();
   });
   
   resetBtn.addEventListener('click', function() {
-    if (isIframe || isSlideshow) return;
+    if (isIframe || isSlideshow || !currentMedia) return;
     resetTransform();
   });
   
   // Global mouse move and up
   window.addEventListener('mousemove', function(e) {
-    if (!isDragging) return;
+    if (!isDragging || !currentMedia) return;
     translateX = e.clientX - startX;
     translateY = e.clientY - startY;
     applyTransform();
@@ -492,46 +523,48 @@ document.addEventListener('DOMContentLoaded', function() {
           break;
         case 'ArrowLeft':
           if (isSlideshow) {
+            e.preventDefault();
             changeSlide(-1);
-          } else if (!isIframe) {
+          } else if (!isIframe && currentMedia) {
             translateX += 50;
             applyTransform();
           }
           break;
         case 'ArrowRight':
           if (isSlideshow) {
+            e.preventDefault();
             changeSlide(1);
-          } else if (!isIframe) {
+          } else if (!isIframe && currentMedia) {
             translateX -= 50;
             applyTransform();
           }
           break;
         case '+':
         case '=':
-          if (!isIframe && !isSlideshow) {
+          if (!isIframe && !isSlideshow && currentMedia) {
             scale = Math.min(5, scale + 0.2);
             applyTransform();
           }
           break;
         case '-':
-          if (!isIframe && !isSlideshow) {
+          if (!isIframe && !isSlideshow && currentMedia) {
             scale = Math.max(0.5, scale - 0.2);
             applyTransform();
           }
           break;
         case '0':
-          if (!isIframe && !isSlideshow) {
+          if (!isIframe && !isSlideshow && currentMedia) {
             resetTransform();
           }
           break;
         case 'ArrowUp':
-          if (!isIframe && !isSlideshow) {
+          if (!isIframe && !isSlideshow && currentMedia) {
             translateY += 50;
             applyTransform();
           }
           break;
         case 'ArrowDown':
-          if (!isIframe && !isSlideshow) {
+          if (!isIframe && !isSlideshow && currentMedia) {
             translateY -= 50;
             applyTransform();
           }
