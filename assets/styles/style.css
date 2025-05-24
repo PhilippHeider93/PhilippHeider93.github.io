@@ -3126,15 +3126,6 @@ border-radius: 100%;
     padding: 20px;
 }
 
-.iframe-container iframe {
-    width: 90%;
-    height: 90%;
-    max-width: 1200px;
-    max-height: 800px;
-    background: #fff;
-    border-radius: 8px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-}
 
 .popup-image-container.iframe-mode {
     padding: 20px;
