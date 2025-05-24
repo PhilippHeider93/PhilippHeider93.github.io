@@ -1,4 +1,4 @@
-// media-popup.js - Handles image and video modal popup with zoom/drag functionality
+// media-popup.js - Updated embed handling for OneDrive
 
 document.addEventListener('DOMContentLoaded', function() {
   const popup = document.getElementById('imagePopup');
@@ -26,13 +26,13 @@ document.addEventListener('DOMContentLoaded', function() {
   let currentSlideIndex = 0;
   let isSlideshow = false;
   
-  // Store OneDrive embed URLs in a secure map with code identifiers
-  // Convert short URLs to proper embed format
+  // Store OneDrive embed URLs - using the direct URLs from the instructions
   const embedMap = {
-    // Video URL converted to embed format
     'synably': 'https://onedrive.live.com/embed?resid=b14276315fd21aa5%212309&authkey=%21AKqru7kmJgzyAeI&em=2',
-    'spiegltec-pdf1': 'https://onedrive.live.com/embed?resid=b14276315fd21aa5%21563&authkey=%21AENmi1TW82pCOpk&em=2',
-    'spiegltec-pdf2': 'https://onedrive.live.com/embed?resid=b14276315fd21aa5%21549&authkey=%21AINyF5DFyAh7mXg&em=2'
+    // PowerPoint presentation (16:9 format)
+    'spiegltec-pdf1': 'https://1drv.ms/b/c/b14276315fd21aa5/IQQ3YIoK1o6PSZSU6vNpQjrqAbMwfPMKJm6i-C4uODxrtXM',
+    // Document (DIN A4 format)
+    'spiegltec-pdf2': 'https://1drv.ms/b/c/b14276315fd21aa5/IQRXo82C-0PVRLeQxcZ7xgUFAewNdVMIahjLlI40d7l4lXI'
   };
   
   // Update help text based on mode
@@ -221,23 +221,60 @@ document.addEventListener('DOMContentLoaded', function() {
     document.body.style.overflow = 'hidden';
   }
   
-  // Create iframe helper
-  function createIframe(embedUrl) {
+  // Create iframe helper - properly handle OneDrive URLs
+  function createIframe(embedUrl, isSlideshow = false) {
     const iframeContainer = document.createElement('div');
     iframeContainer.className = 'iframe-container';
-    iframeContainer.style.cssText = 'width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; padding: 20px;';
+    iframeContainer.style.cssText = 'width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box;';
+    
+    // Create wrapper for better styling
+    const iframeWrapper = document.createElement('div');
+    iframeWrapper.style.cssText = 'width: 90%; height: 90%; max-width: 1200px; max-height: 800px; background: #f5f5f5; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); overflow: hidden; position: relative;';
     
     const iframe = document.createElement('iframe');
-    iframe.src = embedUrl;
-    iframe.style.cssText = 'width: 90%; height: 90%; max-width: 1200px; max-height: 800px; background: #fff; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); border: none;';
-    iframe.frameBorder = '0';
-    iframe.scrolling = 'no';
-    iframe.allowFullscreen = true;
-    iframe.allow = 'autoplay';
     
-    iframeContainer.appendChild(iframe);
-    popupContent.appendChild(iframeContainer);
-    popupContent.classList.add('iframe-mode');
+    // Check if it's a OneDrive short URL and convert it
+    if (embedUrl.includes('1drv.ms')) {
+      // Use the URL as-is for 1drv.ms links
+      iframe.src = embedUrl;
+    } else {
+      // Use other embed URLs as-is
+      iframe.src = embedUrl;
+    }
+    
+    // Set iframe attributes
+    iframe.style.cssText = 'width: 100%; height: 100%; border: none;';
+    iframe.setAttribute('frameborder', '0');
+    iframe.setAttribute('allowfullscreen', 'true');
+    
+    // Add loading indicator
+    const loadingIndicator = document.createElement('div');
+    loadingIndicator.style.cssText = 'position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #666; font-size: 1.2rem;';
+    loadingIndicator.textContent = 'Loading document...';
+    
+    iframeWrapper.appendChild(loadingIndicator);
+    iframeWrapper.appendChild(iframe);
+    iframeContainer.appendChild(iframeWrapper);
+    
+    // Remove loading indicator when iframe loads
+    iframe.onload = function() {
+      if (loadingIndicator.parentNode) {
+        loadingIndicator.remove();
+      }
+    };
+    
+    // Handle iframe errors
+    iframe.onerror = function() {
+      loadingIndicator.textContent = 'Unable to load document';
+      loadingIndicator.style.color = '#d32f2f';
+    };
+    
+    if (!isSlideshow) {
+      popupContent.appendChild(iframeContainer);
+      popupContent.classList.add('iframe-mode');
+    }
+    
+    return iframeContainer;
   }
   
   // Slideshow functions
@@ -259,14 +296,31 @@ document.addEventListener('DOMContentLoaded', function() {
     if (slide.type === 'iframe') {
       const embedUrl = embedMap[slide.embedKey];
       if (embedUrl) {
+        // Create wrapper for iframe slides
+        const iframeWrapper = document.createElement('div');
+        iframeWrapper.style.cssText = 'width: 90%; height: 90%; max-width: 1200px; max-height: 800px; background: #f5f5f5; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); overflow: hidden; position: relative;';
+        
         const iframe = document.createElement('iframe');
         iframe.src = embedUrl;
-        iframe.style.cssText = 'width: 90%; height: 90%; max-width: 1200px; max-height: 800px; background: #fff; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); border: none;';
-        iframe.frameBorder = '0';
-        iframe.scrolling = 'no';
-        iframe.allowFullscreen = true;
-        iframe.allow = 'autoplay';
-        slideContent.appendChild(iframe);
+        iframe.style.cssText = 'width: 100%; height: 100%; border: none;';
+        iframe.setAttribute('frameborder', '0');
+        iframe.setAttribute('allowfullscreen', 'true');
+        
+        // Add loading indicator
+        const loadingIndicator = document.createElement('div');
+        loadingIndicator.style.cssText = 'position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #666; font-size: 1.2rem;';
+        loadingIndicator.textContent = 'Loading document...';
+        
+        iframeWrapper.appendChild(loadingIndicator);
+        iframeWrapper.appendChild(iframe);
+        
+        iframe.onload = function() {
+          if (loadingIndicator.parentNode) {
+            loadingIndicator.remove();
+          }
+        };
+        
+        slideContent.appendChild(iframeWrapper);
       }
     } else {
       const img = document.createElement('img');
@@ -329,7 +383,7 @@ document.addEventListener('DOMContentLoaded', function() {
     media.addEventListener('dblclick', resetTransform);
   }
   
-  // Event handlers
+  // Event handlers remain the same...
   function handleWheel(e) {
     if (!currentMedia || isSlideshow) return;
     e.preventDefault();
