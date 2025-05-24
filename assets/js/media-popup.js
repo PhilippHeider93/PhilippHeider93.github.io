@@ -109,7 +109,7 @@ document.addEventListener('DOMContentLoaded', function() {
       // Create keyboard hints
       const keyboardHints = document.createElement('div');
       keyboardHints.className = 'keyboard-hints';
-      keyboardHints.style.cssText = 'position: absolute; bottom: 80px; left: 50%; transform: translateX(-50%); display: flex; gap: 15px; z-index: 100; background: rgba(0, 0, 0, 0.7); padding: 10px 20px; border-radius: 6px;';
+      keyboardHints.style.cssText = 'position: absolute; bottom: 45px; left: 50%; transform: translateX(-50%); display: flex; gap: 15px; z-index: 100; background: rgba(0, 0, 0, 0.7); padding: 10px 20px; border-radius: 6px;';
       
       const leftKeyHint = document.createElement('div');
       leftKeyHint.style.cssText = 'display: flex; align-items: center; gap: 8px; color: #fff; font-size: 0.9rem;';
@@ -125,7 +125,7 @@ document.addEventListener('DOMContentLoaded', function() {
       // Create indicators
       const indicators = document.createElement('div');
       indicators.className = 'slide-indicators';
-      indicators.style.cssText = 'position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; z-index: 100;';
+      indicators.style.cssText = 'position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; z-index: 100;';
       
       slides.forEach((_, index) => {
         const dot = document.createElement('div');
