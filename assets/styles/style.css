@@ -3173,7 +3173,21 @@ border-radius: 100%;
 }
 
 
+/* Responsive keyboard hints */
+@media only screen and (max-width: 768px) {
+  .keyboard-hints {
+    bottom: 100px !important;
+    font-size: 0.8rem !important;
+    padding: 8px 15px !important;
+  }
+  
+  .slide-counter {
+    font-size: 0.8rem !important;
+    padding: 4px 12px !important;
+  }
+}
 
-</style>
-
-/*# sourceMappingURL=style.css.map */
+/* Animation for keyboard feedback */
+.slide-nav {
+  transition: background-color 0.2s ease;
+}

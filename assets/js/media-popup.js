@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const zoomInBtn = document.getElementById('zoomIn');
   const zoomOutBtn = document.getElementById('zoomOut');
   const resetBtn = document.getElementById('resetView');
+  const popupHelp = document.querySelector('.popup-help');
   
   // Variables for transform
   let scale = 1;
@@ -33,6 +34,20 @@ document.addEventListener('DOMContentLoaded', function() {
     'spiegltec-pdf1': 'https://onedrive.live.com/embed?resid=b14276315fd21aa5%21563&authkey=%21AENmi1TW82pCOpk&em=2',
     'spiegltec-pdf2': 'https://onedrive.live.com/embed?resid=b14276315fd21aa5%21549&authkey=%21AINyF5DFyAh7mXg&em=2'
   };
+  
+  // Update help text based on mode
+  function updateHelpText() {
+    if (isSlideshow) {
+      popupHelp.innerHTML = '<span style="margin-right: 20px;">← → Navigate slides</span><span>ESC to close</span>';
+      popupHelp.style.display = 'block';
+    } else if (isIframe) {
+      popupHelp.innerHTML = '<span>ESC to close</span>';
+      popupHelp.style.display = 'block';
+    } else {
+      popupHelp.innerHTML = 'Click and drag to move • Scroll to zoom';
+      popupHelp.style.display = 'block';
+    }
+  }
   
   // Initialize popup with either image, video, iframe, or slideshow
   function openPopup(src, title, type = 'image', embedKey = null, slidesData = null) {
@@ -91,6 +106,22 @@ document.addEventListener('DOMContentLoaded', function() {
         changeSlide(1);
       };
       
+      // Create keyboard hints
+      const keyboardHints = document.createElement('div');
+      keyboardHints.className = 'keyboard-hints';
+      keyboardHints.style.cssText = 'position: absolute; bottom: 80px; left: 50%; transform: translateX(-50%); display: flex; gap: 15px; z-index: 100; background: rgba(0, 0, 0, 0.7); padding: 10px 20px; border-radius: 6px;';
+      
+      const leftKeyHint = document.createElement('div');
+      leftKeyHint.style.cssText = 'display: flex; align-items: center; gap: 8px; color: #fff; font-size: 0.9rem;';
+      leftKeyHint.innerHTML = '<span style="background: #444; padding: 4px 8px; border-radius: 4px; font-family: monospace;">←</span><span>Previous</span>';
+      
+      const rightKeyHint = document.createElement('div');
+      rightKeyHint.style.cssText = 'display: flex; align-items: center; gap: 8px; color: #fff; font-size: 0.9rem;';
+      rightKeyHint.innerHTML = '<span style="background: #444; padding: 4px 8px; border-radius: 4px; font-family: monospace;">→</span><span>Next</span>';
+      
+      keyboardHints.appendChild(leftKeyHint);
+      keyboardHints.appendChild(rightKeyHint);
+      
       // Create indicators
       const indicators = document.createElement('div');
       indicators.className = 'slide-indicators';
@@ -112,9 +143,17 @@ document.addEventListener('DOMContentLoaded', function() {
         indicators.appendChild(dot);
       });
       
+      // Add slide counter
+      const slideCounter = document.createElement('div');
+      slideCounter.className = 'slide-counter';
+      slideCounter.style.cssText = 'position: absolute; top: 20px; right: 20px; background: rgba(0, 0, 0, 0.7); color: #fff; padding: 5px 15px; border-radius: 20px; font-size: 0.9rem; z-index: 100;';
+      slideCounter.textContent = `${currentSlideIndex + 1} / ${slides.length}`;
+      
       slideContainer.appendChild(prevBtn);
       slideContainer.appendChild(nextBtn);
+      slideContainer.appendChild(keyboardHints);
       slideContainer.appendChild(indicators);
+      slideContainer.appendChild(slideCounter);
       popupContent.appendChild(slideContainer);
       
       // Show first slide
@@ -174,6 +213,9 @@ document.addEventListener('DOMContentLoaded', function() {
         setupMediaInteraction(currentMedia);
       }
     }
+    
+    // Update help text
+    updateHelpText();
     
     popup.style.display = 'block';
     document.body.style.overflow = 'hidden';
@@ -239,6 +281,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     slideWrapper.appendChild(slideContent);
     updateIndicators(index);
+    updateSlideCounter(index);
   }
   
   function changeSlide(direction) {
@@ -266,6 +309,13 @@ document.addEventListener('DOMContentLoaded', function() {
         dot.style.borderRadius = '50%';
       }
     });
+  }
+  
+  function updateSlideCounter(index) {
+    const counter = popupContent.querySelector('.slide-counter');
+    if (counter) {
+      counter.textContent = `${index + 1} / ${slides.length}`;
+    }
   }
   
   // Setup interaction events for current media (image or video)
@@ -429,9 +479,10 @@ document.addEventListener('DOMContentLoaded', function() {
     translateY = 0;
     currentMedia = null;
     
-    // Reset zoom controls visibility
+    // Reset zoom controls visibility and help text
     const zoomControls = document.querySelector('.popup-controls');
     zoomControls.style.display = 'flex';
+    popupHelp.innerHTML = 'Click and drag to move • Scroll to zoom';
   }
   
   // Setup click handlers for all zoom containers
@@ -447,9 +498,9 @@ document.addEventListener('DOMContentLoaded', function() {
       // Check if this is SpieglTec project (has slideshow)
       if (projectTitle.includes('SpieglTec')) {
         const slides = [
-          { type: 'image', src: 'assets/img/spiegltec/1.JPG', alt: 'Project Overview' },
           { type: 'iframe', embedKey: 'spiegltec-pdf1', alt: 'PowerPoint Presentation' },
           { type: 'iframe', embedKey: 'spiegltec-pdf2', alt: 'Documentation' },
+          { type: 'image', src: 'assets/img/spiegltec/1.JPG', alt: 'Project Overview' },
           { type: 'image', src: 'assets/img/spiegltec/2.JPG', alt: 'Project Management Hub' },
           { type: 'image', src: 'assets/img/spiegltec/3.JPG', alt: 'Knowledge Hub' },
           { type: 'image', src: 'assets/img/spiegltec/4.JPG', alt: 'Workflow Automation' }
@@ -514,7 +565,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
   
-  // Keyboard controls
+  // Keyboard controls with visual feedback
   window.addEventListener('keydown', function(e) {
     if (popup.style.display === 'block') {
       switch (e.key) {
@@ -525,6 +576,14 @@ document.addEventListener('DOMContentLoaded', function() {
           if (isSlideshow) {
             e.preventDefault();
             changeSlide(-1);
+            // Visual feedback for keyboard navigation
+            const prevBtn = popupContent.querySelector('.slide-nav.prev');
+            if (prevBtn) {
+              prevBtn.style.background = 'rgba(48, 76, 253, 1)';
+              setTimeout(() => {
+                prevBtn.style.background = 'rgba(48, 76, 253, 0.7)';
+              }, 200);
+            }
           } else if (!isIframe && currentMedia) {
             translateX += 50;
             applyTransform();
@@ -534,6 +593,14 @@ document.addEventListener('DOMContentLoaded', function() {
           if (isSlideshow) {
             e.preventDefault();
             changeSlide(1);
+            // Visual feedback for keyboard navigation
+            const nextBtn = popupContent.querySelector('.slide-nav.next');
+            if (nextBtn) {
+              nextBtn.style.background = 'rgba(48, 76, 253, 1)';
+              setTimeout(() => {
+                nextBtn.style.background = 'rgba(48, 76, 253, 0.7)';
+              }, 200);
+            }
           } else if (!isIframe && currentMedia) {
             translateX -= 50;
             applyTransform();
