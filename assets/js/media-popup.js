@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const embedMap = {
     'synably': 'https://1drv.ms/v/c/b14276315fd21aa5/IQQFnsL-v24gQKpre7kmJgzyAeKBsNNbIS9jCmj4fHZlhBQ',
     // PowerPoint presentation (16:9 format)
-    'spiegltec-pdf1': 'https://1drv.ms/p/c/b14276315fd21aa5/IQR4GCHoVaEqRqa_E01h6tRHAZlyJXfBIOcc_hLpI6vEXLU',
+    'spiegltec-pdf1': 'https://docs.google.com/presentation/d/e/2PACX-1vQzf-m4o50h3K6vD65nEY5PEyeuv5XWmqahT7EJu1mRlF876RrX_mZetnB26kaxkA/pubembed?start=false&loop=false&delayms=10000',
     // Document (DIN A4 format)
     'spiegltec-pdf2': 'https://1drv.ms/b/c/b14276315fd21aa5/IQRXo82C-0PVRLeQxcZ7xgUFAewNdVMIahjLlI40d7l4lXI'
   };
