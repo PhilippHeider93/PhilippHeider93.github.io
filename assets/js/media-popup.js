@@ -560,6 +560,12 @@ document.addEventListener('DOMContentLoaded', function() {
         ];
         
         openPopup(null, projectTitle, 'slideshow', null, slides);
+      } else if (projectTitle.includes('Novartis')) {
+        const slides = [
+          { type: 'image', src: 'assets/img/novartis_automatisation.jpg', alt: 'Novartis Automation' },
+          { type: 'iframe', embedKey: 'novartis-pdf', alt: 'Novartis PDF' }
+        ];
+        openPopup(null, projectTitle, 'slideshow', null, slides);
       } else {
         // Check for other media types
         const img = this.querySelector('.zoom-image');
