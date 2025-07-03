@@ -32,7 +32,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // PowerPoint presentation (16:9 format)
     'spiegltec-pdf1': 'https://docs.google.com/presentation/d/e/2PACX-1vQzf-m4o50h3K6vD65nEY5PEyeuv5XWmqahT7EJu1mRlF876RrX_mZetnB26kaxkA/pubembed?start=false&loop=false&delayms=10000',
     // Document (DIN A4 format)
-    'spiegltec-pdf2': 'https://1drv.ms/b/c/b14276315fd21aa5/IQRXo82C-0PVRLeQxcZ7xgUFAewNdVMIahjLlI40d7l4lXI'
+    'spiegltec-pdf2': 'https://1drv.ms/b/c/b14276315fd21aa5/IQRXo82C-0PVRLeQxcZ7xgUFAewNdVMIahjLlI40d7l4lXI',
+    'novartis-pdf': 'https://1drv.ms/b/c/b14276315fd21aa5/IQQQxDn5WfWnSKbini-u0yR8AQbVaPdUJ-n-VQALjagE5b0'
   };
   
   // Update help text based on mode
