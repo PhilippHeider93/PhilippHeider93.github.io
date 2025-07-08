@@ -2925,6 +2925,8 @@ border-radius: 100%;
   margin-bottom: 15px;
   color: #586069;
   font-size: 0.95rem;
+  text-align: justify;
+  hyphens: auto;
 }
 
 .tech-stack {
